@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: nextcloud
+  name: nextcloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: nextcloud
+  template:
+    metadata:
+      labels:
+        run: nextcloud
+    spec:
+      containers:
+      - image: nextcloud:15.0.2
+        imagePullPolicy: IfNotPresent
+        name: nextcloud
+        resources: {}
+        ports:
+        - containerPort: 80
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always

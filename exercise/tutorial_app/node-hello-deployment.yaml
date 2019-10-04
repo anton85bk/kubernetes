@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: node-hello-world 
+  name: node-hello-world 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: node-hello-world 
+  template:
+    metadata:
+      labels:
+        run: node-hello-world 
+    spec:
+      containers:
+      - image: opfr.ru/node-hello-world 
+        imagePullPolicy: IfNotPresent
+        name: node-hello-world 
+      restartPolicy: Always

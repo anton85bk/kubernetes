@@ -1,0 +1,24 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: asterisk
+  name: asterisk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: asterisk
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: asterisk
+    spec:
+      containers:
+      - image: asterisk:latest
+        imagePullPolicy: Never
+        name: asterisk
+        resources: {}

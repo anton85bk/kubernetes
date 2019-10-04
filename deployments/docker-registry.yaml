@@ -1,0 +1,81 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: docker-registry-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/home/user/kubernetes/registry-datadir"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: docker-registry-volume-claim 
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry 
+  labels:
+    run: docker-registry 
+spec:
+  ports:
+  - port: 443 
+    targetPort: 443
+  selector:
+    run: docker-registry
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: docker-registry
+  name: docker-registry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: docker-registry
+  template:
+    metadata:
+      labels:
+        run: docker-registry
+    spec:
+      containers:
+      - image: registry:2.7.1
+        name: docker-registry
+        env:
+        - name: REGISTRY_HTTP_ADDR 
+          value: "0.0.0.0:443"
+        - name: REGISTRY_HTTP_TLS_CERTIFICATE
+          value: "/certs/tls.crt"
+        - name: REGISTRY_HTTP_TLS_KEY
+          value: "/certs/tls.key"
+        ports:
+          - containerPort: 443
+            name: "https-registry"
+        volumeMounts:
+          - mountPath: "/var/lib/registry"
+            name: docker-registry-pv 
+          - mountPath: "/certs"
+            name: docker-registry-tls-secret 
+      volumes:
+        - name: docker-registry-pv 
+          persistentVolumeClaim:
+            claimName: docker-registry-volume-claim 
+        - name: docker-registry-tls-secret 
+          secret:
+            secretName: docker-registry-tls
